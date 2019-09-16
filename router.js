@@ -5,11 +5,11 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 
 router.post("/api/register", (req, res) => {
-  let { username, password } = req.body;
+  let user = req.body;
+  const hash = bcrypt.hashSync(user.password, 8);
+  user.password = hash;
 
-  const hash = bcrypt.hashSync(password, 8); // it's 2 ^ 8, not 8 rounds
-
-  Users.add({ username, password: hash })
+  Users.add(user)
     .then(saved => {
       res.status(201).json(saved);
     })
