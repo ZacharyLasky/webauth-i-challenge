@@ -1,5 +1,6 @@
 const express = require("express");
 const Users = require("./db-helpers");
+const restricted = require("./auth/restricted-middleware");
 const router = express.Router();
 
 const bcrypt = require("bcryptjs");
@@ -35,7 +36,7 @@ router.post("/api/login", (req, res) => {
     });
 });
 
-router.get("/api/users", (req, res) => {
+router.get("/api/users", restricted, (req, res) => {
   Users.find()
     .then(users => {
       res.json(users);
