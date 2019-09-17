@@ -2,6 +2,13 @@ const express = require("express");
 const Users = require("./db-helpers");
 const restricted = require("./auth/restricted-middleware");
 const router = express.Router();
+const cors = require("cors");
+
+const corsConfig = {
+  origin: "http://localhost:5325",
+  credentials: true
+};
+router.use(cors(corsConfig));
 
 const bcrypt = require("bcryptjs");
 
@@ -26,6 +33,7 @@ router.post("/api/login", (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.user = user;
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
         res.status(401).json({ message: "You cannot pass!" });
@@ -42,6 +50,12 @@ router.get("/api/users", restricted, (req, res) => {
       res.json(users);
     })
     .catch(err => res.send(err));
+});
+
+router.get("/api/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy();
+  }
 });
 
 module.exports = router;
